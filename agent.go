@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"syscall"
 
@@ -24,15 +25,6 @@ import (
 // l    is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
 // +    is in the foreground process group.
 
-// Process a process
-type Process struct {
-	Pid        int
-	PPid       int
-	Executable string
-	Path       string
-	State      string
-}
-
 const StateUnknown = "Unknown"
 
 func getState(pid int) string {
@@ -52,6 +44,10 @@ func Inspect(pid int) (Process, error) {
 	p, err := gops.FindProcess(pid)
 	if err != nil {
 		return Process{}, err
+	}
+
+	if p == nil {
+		return Process{}, fmt.Errorf("Could not find process with pid=%d", pid)
 	}
 
 	path, _ := p.Path()

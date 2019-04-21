@@ -42,7 +42,7 @@ func main() {
 				}
 
 				for _, p := range processes {
-					fmt.Println(p.Pid, p.PPid, p.State, p.Executable)
+					fmt.Println(p)
 				}
 				return nil
 			},
@@ -61,7 +61,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				fmt.Println(p.Pid, p.PPid, p.State, p.Executable)
+				fmt.Println(p)
 				return nil
 			},
 		},
@@ -78,7 +78,12 @@ func main() {
 				if err != nil {
 					return err
 				}
-				return Kill(int(pid))
+				if err := Kill(int(pid)); err != nil {
+					return fmt.Errorf("process %d could be killed: %v", pid, err)
+				}
+				log.Printf("process %d was down", pid)
+
+				return nil
 			},
 		},
 		{
@@ -94,7 +99,11 @@ func main() {
 				if err != nil {
 					return err
 				}
-				return Down(int(pid))
+				if err := Down(int(pid)); err != nil {
+					return fmt.Errorf("process %d could be down: %v", pid, err)
+				}
+				log.Printf("process %d was down", pid)
+				return nil
 			},
 		},
 		{
