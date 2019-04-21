@@ -5,9 +5,12 @@ release:
     name: px
   name_template: '{{.Tag}}'
 brew:
+  github:
+    owner: metrue
+    name: homebrew-px
   commit_author:
-    name: goreleaserbot
-    email: goreleaser@carlosbecker.com
+    name: metrue
+    email: h.minghe@gmail.com
   install: bin.install "px"
 builds:
 - goos:
