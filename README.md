@@ -8,3 +8,10 @@ a simple cli to manipulate process.
 make build
 ./px -h
 ```
+
+## Install
+
+```
+brew tap metrue/homebrew-px
+brew install metrue/px
+```
