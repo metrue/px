@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/metrue/px/agent"
 	"github.com/urfave/cli"
 )
 
@@ -27,7 +28,7 @@ func main() {
 				}
 
 				args := strings.Split(strings.Trim(executable, " "), " ")
-				pid, err := Start(args[0], args)
+				pid, err := agent.Start(args[0], args)
 				if err != nil {
 					return err
 				}
@@ -39,7 +40,7 @@ func main() {
 			Name:  "list",
 			Usage: "list processes",
 			Action: func(c *cli.Context) error {
-				processes, err := List()
+				processes, err := agent.List()
 				if err != nil {
 					return err
 				}
@@ -60,7 +61,7 @@ func main() {
 				}
 
 				pid, err := strconv.ParseInt(num, 10, 64)
-				p, err := Inspect(int(pid))
+				p, err := agent.Inspect(int(pid))
 				if err != nil {
 					return err
 				}
@@ -81,7 +82,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				if err := Kill(int(pid)); err != nil {
+				if err := agent.Kill(int(pid)); err != nil {
 					return fmt.Errorf("process %d could be killed: %v", pid, err)
 				}
 				log.Printf("process %d was killed", pid)
@@ -102,7 +103,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				if err := Down(int(pid)); err != nil {
+				if err := agent.Down(int(pid)); err != nil {
 					return fmt.Errorf("process %d could be down: %v", pid, err)
 				}
 				log.Printf("process %d was down", pid)
@@ -134,7 +135,7 @@ func main() {
 					return fmt.Errorf("signal number is required")
 				}
 
-				return Signal(int(pid), signal)
+				return agent.Signal(int(pid), signal)
 			},
 		},
 	}
