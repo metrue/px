@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/urfave/cli"
 )
@@ -13,18 +14,20 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "px"
 	app.Usage = "manipulate processes like a boss"
-	app.Version = "0.6.5"
+	app.Version = "0.6.6"
 
 	app.Commands = []cli.Command{
 		{
 			Name:  "start",
-			Usage: "run a binary, eg px start '/bin/sleep' '10000'",
+			Usage: "start process",
 			Action: func(c *cli.Context) error {
 				executable := c.Args().First()
 				if executable == "" {
 					return fmt.Errorf("full path of executable is required")
 				}
-				pid, err := Start(executable, c.Args())
+
+				args := strings.Split(strings.Trim(executable, " "), " ")
+				pid, err := Start(args[0], args)
 				if err != nil {
 					return err
 				}
@@ -81,7 +84,7 @@ func main() {
 				if err := Kill(int(pid)); err != nil {
 					return fmt.Errorf("process %d could be killed: %v", pid, err)
 				}
-				log.Printf("process %d was down", pid)
+				log.Printf("process %d was killed", pid)
 
 				return nil
 			},
