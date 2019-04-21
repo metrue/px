@@ -22,6 +22,9 @@ func Start(name string, args []string) (int, error) {
 	procAttr := new(os.ProcAttr)
 	procAttr.Files = []*os.File{os.Stdin, os.Stdout, os.Stderr}
 	p, err := os.StartProcess(name, args, procAttr)
+	if err != nil {
+		return -1, err
+	}
 	return p.Pid, err
 }
 

@@ -74,7 +74,7 @@ func main() {
 			Usage: "notify a process with signal",
 			Flags: []cli.Flag{
 				cli.IntFlag{
-					Name:  "signal, S",
+					Name:  "signal, s",
 					Usage: "signal number",
 				},
 			},
