@@ -13,15 +13,18 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "px"
 	app.Usage = "manipulate processes like a boss"
-	app.Version = "0.0.0"
+	app.Version = "0.6.4"
 
 	app.Commands = []cli.Command{
 		{
 			Name:  "start",
 			Usage: "run a binary, eg px start '/bin/sleep' '10000'",
 			Action: func(c *cli.Context) error {
-				name := c.Args().First()
-				pid, err := Start(name, c.Args())
+				executable := c.Args().First()
+				if executable == "" {
+					return fmt.Errorf("full path of executable is required")
+				}
+				pid, err := Start(executable, c.Args())
 				if err != nil {
 					return err
 				}
@@ -48,7 +51,12 @@ func main() {
 			Name:  "inspect",
 			Usage: "inspect a processes",
 			Action: func(c *cli.Context) error {
-				pid, err := strconv.ParseInt(c.Args().First(), 10, 64)
+				num := c.Args().First()
+				if num == "" {
+					return fmt.Errorf("pid is required")
+				}
+
+				pid, err := strconv.ParseInt(num, 10, 64)
 				p, err := Inspect(int(pid))
 				if err != nil {
 					return err
@@ -62,6 +70,10 @@ func main() {
 			Usage: "kill a process",
 			Action: func(c *cli.Context) error {
 				p := c.Args().First()
+				if p == "" {
+					return fmt.Errorf("pid is required")
+				}
+
 				pid, err := strconv.ParseInt(p, 10, 64)
 				if err != nil {
 					return err
@@ -74,6 +86,10 @@ func main() {
 			Usage: "terminate a process",
 			Action: func(c *cli.Context) error {
 				p := c.Args().First()
+				if p == "" {
+					return fmt.Errorf("pid is required")
+				}
+
 				pid, err := strconv.ParseInt(p, 10, 64)
 				if err != nil {
 					return err
@@ -92,6 +108,10 @@ func main() {
 			},
 			Action: func(c *cli.Context) error {
 				p := c.Args().First()
+				if p == "" {
+					return fmt.Errorf("pid is required")
+				}
+
 				pid, err := strconv.ParseInt(p, 10, 64)
 				if err != nil {
 					return err

@@ -11,6 +11,7 @@ brew:
   commit_author:
     name: metrue
     email: h.minghe@gmail.com
+  folder: Formula
   install: bin.install "px"
 builds:
 - goos:
