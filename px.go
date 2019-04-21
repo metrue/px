@@ -39,9 +39,21 @@ func main() {
 				}
 
 				for _, p := range processes {
-					path, _ := p.Path()
-					fmt.Println(p.Pid(), p.PPid(), path)
+					fmt.Println(p.Pid, p.PPid, p.State, p.Executable)
 				}
+				return nil
+			},
+		},
+		{
+			Name:  "inspect",
+			Usage: "inspect a processes",
+			Action: func(c *cli.Context) error {
+				pid, err := strconv.ParseInt(c.Args().First(), 10, 64)
+				p, err := Inspect(int(pid))
+				if err != nil {
+					return err
+				}
+				fmt.Println(p.Pid, p.PPid, p.State, p.Executable)
 				return nil
 			},
 		},
