@@ -3,11 +3,6 @@ workflow "Release" {
   resolves = ["goreleaser"]
 }
 
-action "is-tag" {
-  uses = "actions/bin/filter@master"
-  args = "tag"
-}
-
 action "goreleaser" {
   uses = "docker://goreleaser/goreleaser"
   secrets = [
@@ -16,5 +11,4 @@ action "goreleaser" {
     "DOCKER_PASSWORD",
   ]
   args = "release"
-  needs = ["is-tag"]
 }
