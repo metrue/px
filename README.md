@@ -11,6 +11,8 @@ brew install px
 
 ## Usage
 
+### CLI
+
 ```
 NAME:
    px - manipulate processes like a boss
@@ -19,10 +21,10 @@ USAGE:
    px [global options] command [command options] [arguments...]
 
 VERSION:
-   0.6.4
+   0.6.6
 
 COMMANDS:
-     start    run a binary, eg px start '/bin/sleep' '10000'
+     start    start process
      list     list processes
      inspect  inspect a processes
      kill     kill a process
@@ -33,4 +35,18 @@ COMMANDS:
 GLOBAL OPTIONS:
    --help, -h     show help
    --version, -v  print the version
+```
+
+### Import as a module
+
+```
+import github.com/metrue/px/agent
+
+...
+
+agent.List()                # list process with state
+agent.Kill(pid)             # kill a process
+agent.Down(pid)             # terminate a process
+agent.Inspect(pid)          # inspect a process
+agent.Signal(pid, signal)   # notify a process with signal
 ```
