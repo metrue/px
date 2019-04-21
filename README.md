@@ -2,11 +2,9 @@
 
 a simple cli to manipulate process.
 
-## Usage
+## How to
 
 ```
-brew tap metrue/homebrew-px
-brew install metrue/px/px
-
-px -h
+make build
+./px -h
 ```
