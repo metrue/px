@@ -13,7 +13,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "px"
 	app.Usage = "manipulate processes like a boss"
-	app.Version = "0.6.4"
+	app.Version = "0.6.5"
 
 	app.Commands = []cli.Command{
 		{
