@@ -9,12 +9,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-var agent *Agent
-
-func init() {
-	agent = &Agent{}
-}
-
 func main() {
 	app := cli.NewApp()
 	app.Name = "px"
@@ -26,18 +20,20 @@ func main() {
 			Name:  "start",
 			Usage: "run a binary, eg px start '/bin/sleep' '10000'",
 			Action: func(c *cli.Context) error {
-				binary := c.Args().First()
-				procAttr := new(os.ProcAttr)
-				procAttr.Files = []*os.File{os.Stdin, os.Stdout, os.Stderr}
-				err := agent.StartProcess(binary, c.Args(), procAttr)
-				return err
+				name := c.Args().First()
+				pid, err := Start(name, c.Args())
+				if err != nil {
+					return err
+				}
+				log.Printf("pid is %d", pid)
+				return nil
 			},
 		},
 		{
 			Name:  "list",
 			Usage: "list processes",
 			Action: func(c *cli.Context) error {
-				processes, err := agent.List()
+				processes, err := List()
 				if err != nil {
 					return err
 				}
@@ -58,7 +54,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				return agent.Kill(int(pid))
+				return Kill(int(pid))
 			},
 		},
 		{
@@ -70,7 +66,7 @@ func main() {
 				if err != nil {
 					return err
 				}
-				return agent.Down(int(pid))
+				return Down(int(pid))
 			},
 		},
 		{
@@ -78,7 +74,7 @@ func main() {
 			Usage: "notify a process with signal",
 			Flags: []cli.Flag{
 				cli.IntFlag{
-					Name:  "signal, S",
+					Name:  "signal, s",
 					Usage: "signal number",
 				},
 			},
@@ -94,7 +90,7 @@ func main() {
 					return fmt.Errorf("signal number is required")
 				}
 
-				return agent.Signal(int(pid), signal)
+				return Signal(int(pid), signal)
 			},
 		},
 	}
