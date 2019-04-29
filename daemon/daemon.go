@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	name        = "px_daemon"
+	name        = "me.minghe.px"
 	description = "px_daemon, a process manipulation agent"
 )
 
