@@ -1,18 +1,18 @@
-project_name: px
+project_name: px-darwin
 release:
   github:
     owner: metrue
-    name: px
+    name: px-daemon
   name_template: '{{.Tag}}'
 brew:
   github:
     owner: metrue
-    name: homebrew-px
+    name: homebrew-px-daemon
   commit_author:
     name: metrue
     email: h.minghe@gmail.com
   folder: Formula
-  install: bin.install "px"
+  install: bin.install "px-daemon"
 builds:
 - goos:
   - linux
