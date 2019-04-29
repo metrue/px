@@ -6,26 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	gops "github.com/keybase/go-ps"
-	gopsutil "github.com/shirou/gopsutil/process"
 )
-
-// D    uninterruptible sleep (usually IO)
-// R    running or runnable (on run queue)
-// S    interruptible sleep (waiting for an event to complete)
-// T    stopped, either by a job control signal or because it is being traced.
-// W    paging (not valid since the 2.6.xx kernel)
-// X    dead (should never be seen)
-// Z    defunct ("zombie") process, terminated but not reaped by its parent.
-
-// For BSD formats and when the stat keyword is used, additional characters may be displayed:
-// <    high-priority (not nice to other users)
-// N    low-priority (nice to other users)
-// L    has pages locked into memory (for real-time and custom IO)
-// s    is a session leader
-// l    is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
-// +    is in the foreground process group.
-
-const StateUnknown = "Unknown"
 
 // Agent agent to maninpulate jobs
 type Agent struct {
@@ -63,18 +44,6 @@ func (a *Agent) Run(addr ...string) error {
 	})
 
 	return r.Run(addr...) // listen and serve on 0.0.0.0:8080
-}
-
-func getState(pid int) string {
-	p, err := gopsutil.NewProcess(int32(pid))
-	if err != nil {
-		return StateUnknown
-	}
-	state, err := p.Status()
-	if err != nil {
-		return StateUnknown
-	}
-	return state
 }
 
 // List list processes
