@@ -3,6 +3,7 @@ package agent
 import (
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -39,13 +40,15 @@ func start(store IStore) func(c *gin.Context) {
 			Path:  cmd.Path,
 			State: cmd.ProcessState.String(),
 		}
-		if err := store.Set(string(pid), process); err != nil {
+		if err := store.Set(strconv.Itoa(pid), process); err != nil {
 			msg := fmt.Sprintf("save job info %s failed: %v", rawCmd, err)
 			c.JSON(500, gin.H{
 				"message": msg,
 			})
 			return
 		}
+
+		store.Keys()
 
 		msg := fmt.Sprintf("job started with %d", pid)
 		c.JSON(200, gin.H{

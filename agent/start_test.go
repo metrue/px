@@ -12,7 +12,7 @@ import (
 	"github.com/golang/mock/gomock"
 )
 
-func TestFibonacci(t *testing.T) {
+func TestStart(t *testing.T) {
 	router := gin.New()
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

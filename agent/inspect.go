@@ -17,6 +17,7 @@ func inspect(store IStore) func(c *gin.Context) {
 		}
 
 		data, err := store.Get(pid)
+		fmt.Println("===------->", pid, data, string(data))
 		if err != nil {
 			msg := fmt.Sprintf("query process wit pid = %s failed: %v", pid, err)
 			c.JSON(500, gin.H{

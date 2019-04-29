@@ -1,7 +1,6 @@
 package agent
 
 import (
-	"fmt"
 	"os"
 	"syscall"
 
@@ -28,15 +27,16 @@ import (
 
 const StateUnknown = "Unknown"
 
+// Agent agent to maninpulate jobs
 type Agent struct {
-	store *Store
+	store IStore
 }
 
-func New(store *Store) *Agent {
+func New(store IStore) *Agent {
 	return &Agent{store: store}
 }
 
-func (a *Agent) Run() error {
+func (a *Agent) Run(addr ...string) error {
 	r := gin.Default()
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -44,17 +44,8 @@ func (a *Agent) Run() error {
 		})
 	})
 
-	r.GET("/inspect", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "inspect",
-		})
-	})
-
-	r.GET("/start", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "start",
-		})
-	})
+	r.GET("/inspect", inspect(a.store))
+	r.GET("/start", start(a.store))
 
 	r.GET("/kill", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -74,7 +65,7 @@ func (a *Agent) Run() error {
 		})
 	})
 
-	return r.Run() // listen and serve on 0.0.0.0:8080
+	return r.Run(addr...) // listen and serve on 0.0.0.0:8080
 }
 
 func getState(pid int) string {
@@ -87,27 +78,6 @@ func getState(pid int) string {
 		return StateUnknown
 	}
 	return state
-}
-
-// Inspect inspect a process
-func Inspect(pid int) (Process, error) {
-	p, err := gops.FindProcess(pid)
-	if err != nil {
-		return Process{}, err
-	}
-
-	if p == nil {
-		return Process{}, fmt.Errorf("Could not find process with pid=%d", pid)
-	}
-
-	path, _ := p.Path()
-	return Process{
-		Pid:        pid,
-		PPid:       p.PPid(),
-		Executable: p.Executable(),
-		Path:       path,
-		State:      getState(pid),
-	}, nil
 }
 
 // List list processes
@@ -131,17 +101,6 @@ func List() ([]Process, error) {
 	}
 
 	return list, err
-}
-
-// Start start a binary with args
-func Start(name string, args []string) (int, error) {
-	procAttr := new(os.ProcAttr)
-	procAttr.Files = []*os.File{os.Stdin, os.Stdout, os.Stderr}
-	p, err := os.StartProcess(name, args, procAttr)
-	if err != nil {
-		return -1, err
-	}
-	return p.Pid, err
 }
 
 // Kill kill a process by pid
