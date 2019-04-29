@@ -59,16 +59,3 @@ $ px inspect 55126
 $ px kill 55126
 2019/04/21 19:39:17 process 55126 was killed
 ```
-
-### Import as a module
-
-```
-import github.com/metrue/px/agent
-
-...
-
-agent.Kill(pid)             # kill a process
-agent.Down(pid)             # terminate a process
-agent.Inspect(pid)          # inspect a process
-agent.Signal(pid, signal)   # notify a process with signal
-```
