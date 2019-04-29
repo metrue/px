@@ -9,11 +9,14 @@ import (
 
 const bucketName = "processes"
 
+// IStore store interface
 type IStore interface {
 	Set(k string, v interface{}) error
 	Get(k string) ([]byte, error)
+	Delete(k string) error
 }
 
+// Store store the job status
 type Store struct {
 	db *bolt.DB
 }

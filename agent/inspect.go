@@ -25,6 +25,14 @@ func inspect(store IStore) func(c *gin.Context) {
 			return
 		}
 
+		if data == nil {
+			msg := fmt.Sprintf("no such job wit pid = %s ", pid)
+			c.JSON(404, gin.H{
+				"message": msg,
+			})
+			return
+		}
+
 		c.JSON(200, gin.H{
 			"data":    string(data),
 			"message": "ok",

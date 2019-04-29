@@ -57,6 +57,18 @@ func (mr *MockIStoreMockRecorder) Get(k interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockIStore)(nil).Get), k)
 }
 
+// Delete mocks base method
+func (m *MockIStore) Delete(k string) error {
+	ret := m.ctrl.Call(m, "Delete", k)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete
+func (mr *MockIStoreMockRecorder) Delete(k interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockIStore)(nil).Delete), k)
+}
+
 // Keys mocks base method
 func (m *MockIStore) Keys() error {
 	ret := m.ctrl.Call(m, "Keys")
