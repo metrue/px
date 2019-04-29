@@ -2,16 +2,22 @@
 
 a simple cli to manipulate process.
 
-## Installation
-
-```
-brew tap metrue/homebrew-px
-brew install px
-```
-
 ## Usage
 
-### CLI
+* Build
+
+```
+$ make build
+```
+
+* Start px daemon
+
+```
+$ sudo ./px-daemon install
+$ sudo ./px-daemon start
+```
+
+* manage your process with px
 
 ```
 NAME:
