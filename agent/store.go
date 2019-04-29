@@ -1,12 +1,18 @@
 package agent
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/boltdb/bolt"
 )
 
 const bucketName = "processes"
+
+type IStore interface {
+	Set(k string, v interface{}) error
+	Get(k string) ([]byte, error)
+}
 
 type Store struct {
 	db *bolt.DB
@@ -16,13 +22,18 @@ func NewStore(db *bolt.DB) *Store {
 	return &Store{db: db}
 }
 
-func (s *Store) Set(k string, v string) error {
+func (s *Store) Set(k string, v interface{}) error {
 	return s.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte(bucketName))
 		if err != nil {
 			return err
 		}
-		return b.Put([]byte(k), []byte(v))
+		data, err := json.Marshal(v)
+		if err != nil {
+			return err
+		}
+
+		return b.Put([]byte(k), data)
 	})
 }
 

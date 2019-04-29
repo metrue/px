@@ -36,8 +36,8 @@ func TestStore(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if string(v) != expect {
-			t.Fatalf("should get %s but got %v", expect, v)
+		if string(v) != `"`+expect+`"` {
+			t.Fatalf("should get %s but got %s", expect, string(v))
 		}
 
 		err = store.Delete(k)
@@ -52,6 +52,5 @@ func TestStore(t *testing.T) {
 		if string(v) != "" {
 			t.Fatal("should get an empty since deleted")
 		}
-
 	})
 }
