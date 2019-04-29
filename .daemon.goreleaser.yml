@@ -2,7 +2,7 @@ project_name: px-darwin
 release:
   github:
     owner: metrue
-    name: px-daemon
+    name: px
   name_template: '{{.Tag}}'
 brew:
   github:
