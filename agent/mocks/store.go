@@ -56,3 +56,15 @@ func (m *MockIStore) Get(k string) ([]byte, error) {
 func (mr *MockIStoreMockRecorder) Get(k interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockIStore)(nil).Get), k)
 }
+
+// Keys mocks base method
+func (m *MockIStore) Keys() error {
+	ret := m.ctrl.Call(m, "Keys")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Keys indicates an expected call of Keys
+func (mr *MockIStoreMockRecorder) Keys() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Keys", reflect.TypeOf((*MockIStore)(nil).Keys))
+}

@@ -46,23 +46,20 @@ func (a *Agent) Run(addr ...string) error {
 
 	r.GET("/inspect", inspect(a.store))
 	r.GET("/start", start(a.store))
+	r.GET("/notify", notify(a.store))
 
 	r.GET("/kill", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "kill",
-		})
+		qs := c.Request.URL.Query()
+		qs.Set("signal", "9")
+		c.Request.URL.RawQuery = qs.Encode()
+		notify(a.store)(c)
 	})
 
 	r.GET("/down", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "down",
-		})
-	})
-
-	r.GET("/notify", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "notify",
-		})
+		qs := c.Request.URL.Query()
+		qs.Set("signal", "15")
+		c.Request.URL.RawQuery = qs.Encode()
+		notify(a.store)(c)
 	})
 
 	return r.Run(addr...) // listen and serve on 0.0.0.0:8080

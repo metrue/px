@@ -48,8 +48,6 @@ func start(store IStore) func(c *gin.Context) {
 			return
 		}
 
-		store.Keys()
-
 		msg := fmt.Sprintf("job started with %d", pid)
 		c.JSON(200, gin.H{
 			"message": msg,
