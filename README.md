@@ -21,11 +21,10 @@ USAGE:
    px [global options] command [command options] [arguments...]
 
 VERSION:
-   0.6.6
+   0.7.0
 
 COMMANDS:
      start    start process
-     list     list processes
      inspect  inspect a processes
      kill     kill a process
      down     terminate a process
@@ -62,7 +61,6 @@ import github.com/metrue/px/agent
 
 ...
 
-agent.List()                # list process with state
 agent.Kill(pid)             # kill a process
 agent.Down(pid)             # terminate a process
 agent.Inspect(pid)          # inspect a process
