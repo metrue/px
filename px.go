@@ -2,18 +2,36 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
-	"strconv"
-	"strings"
+	"time"
 
-	"github.com/boltdb/bolt"
-
-	"github.com/metrue/px/agent"
 	"github.com/urfave/cli"
 )
 
-const dbFile = "~/.px.db"
+const endpoint = "http://127.0.0.1:8080"
+
+func request(path string, qs map[string]string) (string, error) {
+	req, _ := http.NewRequest("GET", endpoint+path, nil)
+	client := &http.Client{Timeout: time.Second * 10}
+	q := req.URL.Query()
+	for k, v := range qs {
+		q.Set(k, v)
+	}
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(body), nil
+}
 
 func main() {
 	app := cli.NewApp()
@@ -21,43 +39,34 @@ func main() {
 	app.Usage = "manipulate processes like a boss"
 	app.Version = "0.6.7"
 
-	db, err := bolt.Open(dbFile, 0600, nil)
-	if err != nil {
-		panic(err)
-	}
-	defer db.Close()
-
 	app.Commands = []cli.Command{
 		{
-			Name:  "start",
-			Usage: "start process",
+			Name:  "ping",
+			Usage: "ping px daemon",
 			Action: func(c *cli.Context) error {
-				executable := c.Args().First()
-				if executable == "" {
-					return fmt.Errorf("full path of executable is required")
-				}
-
-				args := strings.Split(strings.Trim(executable, " "), " ")
-				pid, err := agent.Start(args[0], args)
+				res, err := request("/ping", map[string]string{})
 				if err != nil {
 					return err
 				}
-				log.Printf("pid is %d", pid)
+				fmt.Println(res)
 				return nil
 			},
 		},
 		{
-			Name:  "list",
-			Usage: "list processes",
+			Name:  "start",
+			Usage: "start process",
 			Action: func(c *cli.Context) error {
-				processes, err := agent.List()
+				cmd := c.Args().First()
+				res, err := request(
+					"/start",
+					map[string]string{
+						"cmd": cmd,
+					},
+				)
 				if err != nil {
 					return err
 				}
-
-				for _, p := range processes {
-					fmt.Println(p)
-				}
+				fmt.Println(res)
 				return nil
 			},
 		},
@@ -66,16 +75,16 @@ func main() {
 			Usage: "inspect a processes",
 			Action: func(c *cli.Context) error {
 				num := c.Args().First()
-				if num == "" {
-					return fmt.Errorf("pid is required")
-				}
-
-				pid, err := strconv.ParseInt(num, 10, 64)
-				p, err := agent.Inspect(int(pid))
+				res, err := request(
+					"/inspect",
+					map[string]string{
+						"pid": num,
+					},
+				)
 				if err != nil {
 					return err
 				}
-				fmt.Println(p)
+				fmt.Println(res)
 				return nil
 			},
 		},
@@ -83,20 +92,17 @@ func main() {
 			Name:  "kill",
 			Usage: "kill a process",
 			Action: func(c *cli.Context) error {
-				p := c.Args().First()
-				if p == "" {
-					return fmt.Errorf("pid is required")
-				}
-
-				pid, err := strconv.ParseInt(p, 10, 64)
+				num := c.Args().First()
+				res, err := request(
+					"/kill",
+					map[string]string{
+						"pid": num,
+					},
+				)
 				if err != nil {
 					return err
 				}
-				if err := agent.Kill(int(pid)); err != nil {
-					return fmt.Errorf("process %d could be killed: %v", pid, err)
-				}
-				log.Printf("process %d was killed", pid)
-
+				fmt.Println(res)
 				return nil
 			},
 		},
@@ -104,19 +110,17 @@ func main() {
 			Name:  "down",
 			Usage: "terminate a process",
 			Action: func(c *cli.Context) error {
-				p := c.Args().First()
-				if p == "" {
-					return fmt.Errorf("pid is required")
-				}
-
-				pid, err := strconv.ParseInt(p, 10, 64)
+				num := c.Args().First()
+				res, err := request(
+					"/down",
+					map[string]string{
+						"pid": num,
+					},
+				)
 				if err != nil {
 					return err
 				}
-				if err := agent.Down(int(pid)); err != nil {
-					return fmt.Errorf("process %d could be down: %v", pid, err)
-				}
-				log.Printf("process %d was down", pid)
+				fmt.Println(res)
 				return nil
 			},
 		},
@@ -124,28 +128,26 @@ func main() {
 			Name:  "notify",
 			Usage: "notify a process with signal",
 			Flags: []cli.Flag{
-				cli.IntFlag{
+				cli.StringFlag{
 					Name:  "signal, s",
 					Usage: "signal number",
 				},
 			},
 			Action: func(c *cli.Context) error {
-				p := c.Args().First()
-				if p == "" {
-					return fmt.Errorf("pid is required")
-				}
-
-				pid, err := strconv.ParseInt(p, 10, 64)
+				pid := c.Args().First()
+				signal := c.String("signal")
+				res, err := request(
+					"/notify",
+					map[string]string{
+						"pid":    pid,
+						"signal": signal,
+					},
+				)
 				if err != nil {
 					return err
 				}
-
-				signal := c.Int("signal")
-				if signal == 0 {
-					return fmt.Errorf("signal number is required")
-				}
-
-				return agent.Signal(int(pid), signal)
+				fmt.Println(res)
+				return nil
 			},
 		},
 	}
