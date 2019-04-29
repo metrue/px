@@ -1,63 +1,49 @@
 package agent
 
 import (
-	"fmt"
 	"os"
 	"syscall"
 
+	"github.com/gin-gonic/gin"
 	gops "github.com/keybase/go-ps"
-	gopsutil "github.com/shirou/gopsutil/process"
 )
 
-// D    uninterruptible sleep (usually IO)
-// R    running or runnable (on run queue)
-// S    interruptible sleep (waiting for an event to complete)
-// T    stopped, either by a job control signal or because it is being traced.
-// W    paging (not valid since the 2.6.xx kernel)
-// X    dead (should never be seen)
-// Z    defunct ("zombie") process, terminated but not reaped by its parent.
-
-// For BSD formats and when the stat keyword is used, additional characters may be displayed:
-// <    high-priority (not nice to other users)
-// N    low-priority (nice to other users)
-// L    has pages locked into memory (for real-time and custom IO)
-// s    is a session leader
-// l    is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)
-// +    is in the foreground process group.
-
-const StateUnknown = "Unknown"
-
-func getState(pid int) string {
-	p, err := gopsutil.NewProcess(int32(pid))
-	if err != nil {
-		return StateUnknown
-	}
-	state, err := p.Status()
-	if err != nil {
-		return StateUnknown
-	}
-	return state
+// Agent agent to maninpulate jobs
+type Agent struct {
+	store IStore
 }
 
-// Inspect inspect a process
-func Inspect(pid int) (Process, error) {
-	p, err := gops.FindProcess(pid)
-	if err != nil {
-		return Process{}, err
-	}
+func New(store IStore) *Agent {
+	return &Agent{store: store}
+}
 
-	if p == nil {
-		return Process{}, fmt.Errorf("Could not find process with pid=%d", pid)
-	}
+func (a *Agent) Run(addr ...string) error {
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong pong",
+		})
+	})
 
-	path, _ := p.Path()
-	return Process{
-		Pid:        pid,
-		PPid:       p.PPid(),
-		Executable: p.Executable(),
-		Path:       path,
-		State:      getState(pid),
-	}, nil
+	r.GET("/inspect", inspect(a.store))
+	r.GET("/start", start(a.store))
+	r.GET("/notify", notify(a.store))
+
+	r.GET("/kill", func(c *gin.Context) {
+		qs := c.Request.URL.Query()
+		qs.Set("signal", "9")
+		c.Request.URL.RawQuery = qs.Encode()
+		notify(a.store)(c)
+	})
+
+	r.GET("/down", func(c *gin.Context) {
+		qs := c.Request.URL.Query()
+		qs.Set("signal", "15")
+		c.Request.URL.RawQuery = qs.Encode()
+		notify(a.store)(c)
+	})
+
+	return r.Run(addr...) // listen and serve on 0.0.0.0:8080
 }
 
 // List list processes
@@ -81,17 +67,6 @@ func List() ([]Process, error) {
 	}
 
 	return list, err
-}
-
-// Start start a binary with args
-func Start(name string, args []string) (int, error) {
-	procAttr := new(os.ProcAttr)
-	procAttr.Files = []*os.File{os.Stdin, os.Stdout, os.Stderr}
-	p, err := os.StartProcess(name, args, procAttr)
-	if err != nil {
-		return -1, err
-	}
-	return p.Pid, err
 }
 
 // Kill kill a process by pid
