@@ -5,6 +5,7 @@ import (
 	"os"
 	"syscall"
 
+	"github.com/gin-gonic/gin"
 	gops "github.com/keybase/go-ps"
 	gopsutil "github.com/shirou/gopsutil/process"
 )
@@ -26,6 +27,55 @@ import (
 // +    is in the foreground process group.
 
 const StateUnknown = "Unknown"
+
+type Agent struct {
+	store *Store
+}
+
+func New(store *Store) *Agent {
+	return &Agent{store: store}
+}
+
+func (a *Agent) Run() error {
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong pong",
+		})
+	})
+
+	r.GET("/inspect", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "inspect",
+		})
+	})
+
+	r.GET("/start", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "start",
+		})
+	})
+
+	r.GET("/kill", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "kill",
+		})
+	})
+
+	r.GET("/down", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "down",
+		})
+	})
+
+	r.GET("/notify", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "notify",
+		})
+	})
+
+	return r.Run() // listen and serve on 0.0.0.0:8080
+}
 
 func getState(pid int) string {
 	p, err := gopsutil.NewProcess(int32(pid))

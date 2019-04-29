@@ -7,15 +7,25 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/boltdb/bolt"
+
 	"github.com/metrue/px/agent"
 	"github.com/urfave/cli"
 )
+
+const dbFile = "~/.px.db"
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "px"
 	app.Usage = "manipulate processes like a boss"
 	app.Version = "0.6.7"
+
+	db, err := bolt.Open(dbFile, 0600, nil)
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
 
 	app.Commands = []cli.Command{
 		{
